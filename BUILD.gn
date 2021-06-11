@@ -20,6 +20,13 @@ config("external_config") {
 
 rtc_shared_library("libwebrtc"){
   sources = [
+    "include/base/atomicops.h",
+    "include/base/fixed_size_function.h",
+    "include/base/inlined_vector.h",
+    "include/base/refcount.h",
+    "include/base/refcountedobject.h",
+    "include/base/scoped_ref_ptr.h",
+  
     "include/libwebrtc.h",
     "include/rtc_audio_device.h",
     "include/rtc_audio_track.h",
@@ -38,13 +45,12 @@ rtc_shared_library("libwebrtc"){
     "include/rtc_video_frame.h",
     "include/rtc_video_source.h",
     "include/rtc_video_renderer.h",
+    "include/rtp_transceiver_direction.h",
+    "include/rtp_transceiver_interface.h",
+    "include/rtp_sender_interface.h",
+    "include/rtp_receiver_interface.h",
 
-    "include/base/atomicops.h",
-    "include/base/fixed_size_function.h",
-    "include/base/inlined_vector.h",
-    "include/base/refcount.h",
-    "include/base/refcountedobject.h",
-    "include/base/scoped_ref_ptr.h",
+
 
     "src/libwebrtc.cc",
     "src/rtc_audio_device_impl.h",
