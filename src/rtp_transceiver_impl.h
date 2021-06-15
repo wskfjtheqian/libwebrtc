@@ -3,7 +3,7 @@
 
 #include <pc/rtp_transceiver.h>
 
-#include "rtp_transceiver_interface.h"
+#include "rtp_transceiver.h"
 
 namespace libwebrtc {
 class RtpTransceiverInitImpl : public RtpTransceiverInit {
@@ -29,13 +29,13 @@ class RtpTransceiverInitImpl : public RtpTransceiverInit {
   scoped_refptr<webrtc::RtpTransceiverInit> rtp_transceiver_init_;
 };
 
-class RtpTransceiverInterfaceImpl : public RtpTransceiverInterface {
+class RtpTransceiverImpl : public RtpTransceiver {
  public:
   MediaType GetMediaType() const;
 
   std::string GetMid() const;
 
- scoped_refptr<RtpSenderInterface> Sender() const;
+ scoped_refptr<RtpSender> Sender() const;
 
  scoped_refptr<RtpReceiver> Receiver() const;
 
@@ -47,9 +47,9 @@ class RtpTransceiverInterfaceImpl : public RtpTransceiverInterface {
 
   RTCError SetDirectionWithError(RtpTransceiverDirection new_direction);
 
-  absl::optional<RtpTransceiverDirection> current_direction() const;
+  RtpTransceiverDirection current_direction() const;
 
-  absl::optional<RtpTransceiverDirection> fired_direction() const;
+  RtpTransceiverDirection fired_direction() const;
 
   RTCError StopStandard();
 
@@ -73,11 +73,11 @@ class RtpTransceiverInterfaceImpl : public RtpTransceiverInterface {
   rtc::scoped_refptr<webrtc::RtpTransceiverInterface> GetRtpTransceiverInterface();
 
  protected:
-  ~RtpTransceiverInterfaceImpl() override = default;
+  ~RtpTransceiverImpl() override = default;
 
  private:
   rtc::scoped_refptr<webrtc::RtpTransceiverInterface>
-      rtp_transceiver_interface_;
+      rtp_transceiver_;
 };
 
 }  // namespace libwebrtc

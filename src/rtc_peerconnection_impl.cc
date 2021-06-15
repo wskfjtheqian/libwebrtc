@@ -648,8 +648,8 @@ void RTCPeerConnectionImpl::AddTransceiver(
                                                   *initImpl->rtc_init().get());
   }
   if (onAdd) {
-    scoped_refptr<RtpTransceiverInterfaceImpl> ret =
-        new RefCountedObject<RtpTransceiverInterfaceImpl>();
+    scoped_refptr<RtpTransceiverImpl> ret =
+        new RefCountedObject<RtpTransceiverImpl>();
     ret->SetRtpTransceiverInterface(errorOr.value());
     onAdd(ret, errorOr.error().message());
   }
@@ -666,8 +666,8 @@ void RTCPeerConnectionImpl::AddTransceiver(scoped_refptr<RTCMediaTrack> track,
     errorOr = rtc_peerconnection_->AddTransceiver(impl->rtc_track());
   }
   if (onAdd) {
-    scoped_refptr<RtpTransceiverInterfaceImpl> ret =
-        new RefCountedObject<RtpTransceiverInterfaceImpl>();
+    scoped_refptr<RtpTransceiverImpl> ret =
+        new RefCountedObject<RtpTransceiverImpl>();
     ret->SetRtpTransceiverInterface(errorOr.value());
     onAdd(ret, errorOr.error().message());
   }

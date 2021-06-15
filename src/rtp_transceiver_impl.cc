@@ -1,4 +1,4 @@
-#include "rtp_transceiver_interface_impl.h"
+#include "rtp_transceiver_impl.h"
 #include "base/refcountedobject.h"
 #include <src/rtp_parameters_impl.h>
 
@@ -56,30 +56,34 @@ scoped_refptr<webrtc::RtpTransceiverInit> RtpTransceiverInitImpl::rtc_init() {
 
 
 
-MediaType RtpTransceiverInterfaceImpl::GetMediaType() const {
-  int ret = static_cast<int>( rtp_transceiver_interface_->media_type());
+MediaType RtpTransceiverImpl::GetMediaType() const {
+  int ret = static_cast<int>( rtp_transceiver_->media_type());
   return static_cast<MediaType>(ret);
 }
 
-std::string RtpTransceiverInterfaceImpl::GetMid() const {
-  return rtp_transceiver_interface_->mid().value();
+std::string RtpTransceiverImpl::GetMid() const {
+  return rtp_transceiver_->mid().value();
 }
 
-scoped_refptr<RtpSenderInterface> RtpTransceiverInterfaceImpl::Sender() const {
-  return rtp_transceiver_interface_->sender();
+scoped_refptr<RtpSender> RtpTransceiverImpl::Sender() const {
+  return rtp_transceiver_->sender();
 }
 
-bool RtpTransceiverInterfaceImpl::Stopped() const {
-  return rtp_transceiver_interface_->stopped();
+scoped_refptr<RtpReceiver> RtpTransceiverImpl::Receiver() const {
+  return rtp_transceiver_->receiver();
+}
+
+bool RtpTransceiverImpl::Stopped() const {
+  return rtp_transceiver_->stopped();
  }
 
 
-void RtpTransceiverInterfaceImpl::SetRtpTransceiverInterface(
+void RtpTransceiverImpl::SetRtpTransceiverInterface(
      rtc::scoped_refptr<webrtc::RtpTransceiverInterface> rti) {
-   rtp_transceiver_interface_ = rti;
+   rtp_transceiver_ = rti;
  }
 
  rtc::scoped_refptr<webrtc::RtpTransceiverInterface>
- RtpTransceiverInterfaceImpl::GetRtpTransceiverInterface() {
-   return rtp_transceiver_interface_;
+ RtpTransceiverImpl::GetRtpTransceiverInterface() {
+   return rtp_transceiver_;
  }
