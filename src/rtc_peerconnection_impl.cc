@@ -13,7 +13,7 @@
 #include "rtc_ice_candidate_impl.h"
 #include "rtc_media_stream_impl.h"
 #include "rtc_mediaconstraints_impl.h"
-#include "rtp_transceiver_interface_impl.h"
+#include "rtp_transceiver_impl.h"
 #include "base/refcountedobject.h"
 #include "rtp_sender_impl.h"
 

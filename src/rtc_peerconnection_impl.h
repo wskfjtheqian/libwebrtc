@@ -1,5 +1,5 @@
-#ifndef LIB_WEBRTC_MEDIA_SESSION_IMPL_HXX
-#define LIB_WEBRTC_MEDIA_SESSION_IMPL_HXX
+#ifndef LIB_WEBRTC_RTC_PEERCONNECTION_IMPL_H_
+#define LIB_WEBRTC_RTC_PEERCONNECTION_IMPL_H_
 
 #include <deque>
 #include <map>
@@ -163,4 +163,4 @@ class RTCPeerConnectionImpl : public RTCPeerConnection,
 
 }  // namespace libwebrtc
 
-#endif  // LIB_WEBRTC_MEDIA_SESSION_IMPL_HXX
+#endif  // LIB_WEBRTC_RTC_PEERCONNECTION_IMPL_H_

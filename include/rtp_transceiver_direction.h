@@ -1,5 +1,5 @@
-#ifndef LIB_WEBRTC_TRANSCEIVER_DIRECTION_H_
-#define LIB_WEBRTC_TRANSCEIVER_DIRECTION_H_
+#ifndef LIB_WEBRTC_RTP_TRANSCEIVER_DIRECTION_H_
+#define LIB_WEBRTC_RTP_TRANSCEIVER_DIRECTION_H_
 
 namespace libwebrtc {
 
@@ -13,4 +13,4 @@ enum class RtpTransceiverDirection {
 
 }  // namespace libwebrtc
 
-#endif  // API_RTP_TRANSCEIVER_DIRECTION_H_
+#endif  // LIB_WEBRTC_RTP_TRANSCEIVER_DIRECTION_H_

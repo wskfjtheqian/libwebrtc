@@ -1,7 +1,8 @@
-#ifndef LIB_WEBRTC_RTC_PEERCONNECTION_HXX
-#define LIB_WEBRTC_RTC_PEERCONNECTION_HXX
+#ifndef LIB_WEBRTC_RTC_PEERCONNECTION_H_
+#define LIB_WEBRTC_RTC_PEERCONNECTION_H_
 
 #include <string.h>
+#include <vector>
 
 #include "rtc_audio_track.h"
 #include "rtc_data_channel.h"
@@ -14,7 +15,7 @@
 #include "rtc_video_track.h"
 #include "rtp_sender.h"
 #include "rtp_transceiver_direction.h"
-#include "rtp_transceiver_interface.h"
+#include "rtp_transceiver.h"
 
 namespace libwebrtc {
 
@@ -116,7 +117,7 @@ typedef fixed_size_function<void(const char* sdp, const char* type)>
 typedef fixed_size_function<void(const char* error)> OnGetSdpFailure;
 
 typedef fixed_size_function<void(
-    scoped_refptr<RtpTransceiverInterface> transceiver,
+    scoped_refptr<RtpTransceiver> transceiver,
     const char* message)>
     OnAddTransceiver;
 

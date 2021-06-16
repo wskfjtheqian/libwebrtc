@@ -1,65 +1,49 @@
-
 #ifndef LIB_WEBRTC_DTLS_TRANSPORT_H_
 #define LIB_WEBRTC_DTLS_TRANSPORT_H_
 
 #include "base/refcount.h"
-
+#include "rtc_ice_transport.h"
+#include "rtc_types.h"
 
 namespace libwebrtc {
 
-enum class DtlsTransportState {
-  kNew,         // Has not started negotiating yet.
-  kConnecting,  // In the process of negotiating a secure connection.
-  kConnected,   // Completed negotiation and verified fingerprints.
-  kClosed,      // Intentionally closed.
-  kFailed,      // Failure due to an error or failing to verify a remote
-                // fingerprint.
-  kNumValues
-};
-
-class  DtlsTransportInformation {
+class DtlsTransportInformation : public RefCountInterface {
  public:
-  DtlsTransportInformation();
-  explicit DtlsTransportInformation(DtlsTransportState state);
-  DtlsTransportInformation(DtlsTransportState state,
-                           int tls_version,
-                           int ssl_cipher_suite,
-                           int srtp_cipher_suite,
-                           std::string remote_ssl_certificates)
-      : state_(state),
-        tls_version_(tls_version),
-        ssl_cipher_suite_(ssl_cipher_suite),
-        srtp_cipher_suite_(srtp_cipher_suite),
-        remote_ssl_certificates_(remote_ssl_certificates)
-  {};
+  enum class DtlsTransportState {
+    kNew,         // Has not started negotiating yet.
+    kConnecting,  // In the process of negotiating a secure connection.
+    kConnected,   // Completed negotiation and verified fingerprints.
+    kClosed,      // Intentionally closed.
+    kFailed,      // Failure due to an error or failing to verify a remote
+                  // fingerprint.
+    kNumValues
+  };
 
-  DtlsTransportInformation(const DtlsTransportInformation& c);
-  DtlsTransportInformation& operator=(const DtlsTransportInformation& c);
-  DtlsTransportInformation(DtlsTransportInformation&& other) = default;
-  DtlsTransportInformation& operator=(DtlsTransportInformation&& other) =
-      default;
+  LIB_WEBRTC_API static scoped_refptr<DtlsTransportInformation> Create();
 
-  DtlsTransportState state() const { return state_; }
-  int tls_version() const { return tls_version_; }
-  int ssl_cipher_suite() const { return ssl_cipher_suite_; }
-  int srtp_cipher_suite() const { return srtp_cipher_suite_; }
-  const std::string remote_ssl_certificates() const {
-    return remote_ssl_certificates_;
-  }
+  LIB_WEBRTC_API static scoped_refptr<DtlsTransportInformation> Create(
+      DtlsTransportState state);
 
- private:
-  DtlsTransportState state_;
-  int tls_version_;
-  int ssl_cipher_suite_;
-  int srtp_cipher_suite_;
-  std::string remote_ssl_certificates_;
+  LIB_WEBRTC_API static scoped_refptr<DtlsTransportInformation> Create(
+      DtlsTransportState state,
+      int tls_version,
+      int ssl_cipher_suite,
+      int srtp_cipher_suite,
+      std::string remote_ssl_certificates);
+
+  LIB_WEBRTC_API static scoped_refptr<DtlsTransportInformation> Create(
+      scoped_refptr<DtlsTransportInformation> c);
+
+  virtual DtlsTransportInformation& operator=(
+      scoped_refptr<DtlsTransportInformation> c) = 0;
+
+  virtual DtlsTransportState GetState() const = 0;
+  virtual int GetSslCipherSuite() const = 0;
+  virtual int GetSrtpCipherSuite() const = 0;
 };
-
-
 
 class DtlsTransportObserver {
  public:
-
   virtual void OnStateChange(DtlsTransportInformation info) = 0;
 
   virtual void OnError(const int type, const char* message) = 0;
@@ -68,21 +52,19 @@ class DtlsTransportObserver {
   virtual ~DtlsTransportObserver() = default;
 };
 
-
 class DtlsTransport : public RefCountInterface {
- public:
-  
-  virtual rtc::scoped_refptr<IceTransport> ice_transport() = 0;
+  LIB_WEBRTC_API static scoped_refptr<DtlsTransport> Create();
 
-  virtual DtlsTransportInformation Information() = 0;
+ public:
+  virtual rtc::scoped_refptr<IceTransport> GetIceTransport() = 0;
+
+  virtual DtlsTransportInformation GetInformation() = 0;
 
   virtual void RegisterObserver(DtlsTransportObserver* observer) = 0;
 
   virtual void UnregisterObserver() = 0;
-
-
 };
 
-}  // namespace webrtc
+}  // namespace libwebrtc
 
 #endif  // API_DTLS_TRANSPORT_INTERFACE_H_

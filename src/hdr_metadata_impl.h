@@ -27,9 +27,8 @@ class ChromaticityImpl : public Chromaticity {
 
 struct HdrMasteringMetadataImpl : public HdrMasteringMetadata {
  public:
-  HdrMasteringMetadataImpl();
-
-  static scoped_refptr<HdrMasteringMetadata> Create();
+  HdrMasteringMetadataImpl(
+      webrtc::HdrMasteringMetadata hdr_mastering_metadata);
 
   virtual bool operator==(const scoped_refptr<HdrMasteringMetadata> rhs) const;
 
@@ -53,6 +52,7 @@ struct HdrMasteringMetadataImpl : public HdrMasteringMetadata {
   virtual float GetLuminanceMin() override ;
   virtual void SetLuminanceMin(float value) override ;
 
+  webrtc::HdrMasteringMetadata hdr_mastering_metadata();
  private:
   webrtc::HdrMasteringMetadata hdr_mastering_metadata_;
 };
@@ -60,6 +60,10 @@ struct HdrMasteringMetadataImpl : public HdrMasteringMetadata {
 struct HdrMetadataImpl : public HdrMetadata {
  public:
   HdrMetadataImpl();
+
+  HdrMetadataImpl(webrtc::HdrMetadata* hdr_metadata);
+
+  HdrMetadataImpl(webrtc::HdrMetadata& hdr_metadata);
 
   static scoped_refptr<HdrMetadata> Create();
 
@@ -76,6 +80,11 @@ struct HdrMetadataImpl : public HdrMetadata {
 
   virtual int GetMaxFrameAverageLightLevel() override ;
   virtual void SetMaxFrameAverageLightLevel(int value) override ;
+
+  webrtc::HdrMetadata& hdr_metadata();
+
+ private:
+  webrtc::HdrMetadata hdr_metadata_;
 };
 
 }  // namespace libwebrtc

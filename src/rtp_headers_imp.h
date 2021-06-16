@@ -17,7 +17,6 @@ class FeedbackRequestImpl : public FeedbackRequest {
   virtual int GetSequenceCount() override;
   virtual void GetSequenceCount(int value) override;
 
- protected:
   webrtc::FeedbackRequest feedback_request();
 
  private:
@@ -45,11 +44,61 @@ class RTPHeaderExtensionImpl : public RTPHeaderExtension {
  public:
   RTPHeaderExtensionImpl(webrtc::RTPHeaderExtension rtp_header_extension);
 
+  virtual uint64_t GetAbsoluteSendTimestamp() override;
+  virtual uint64_t GetAbsoluteSendTimeDelta(
+      uint32_t previous_sendtime) override;
+  virtual bool GetHasTransmissionTimeOffset() override;
+  virtual void SetHasTransmissionTimeOffset(bool value) override;
+  virtual int32_t GetTransmissionTimeOffset() override;
+  virtual void SetTransmissionTimeOffset(int32_t value) override;
+  virtual bool GetHasAbsoluteSendTime() override;
+  virtual void SetHasAbsoluteSendTime(bool value) override;
+  virtual uint32_t GetAbsoluteSendTime() override;
+  virtual void SetAbsoluteSendTime(uint32_t value) override;
+  virtual scoped_refptr<AbsoluteCaptureTime> GetAbsoluteCaptureTime() override;
+  virtual void SetAbsoluteCaptureTime(
+      scoped_refptr<AbsoluteCaptureTime> value) override;
+  virtual bool GetHasTransportSequenceNumber() override;
+  virtual void SetHasTransportSequenceNumber(bool value) override;
+  virtual uint16_t GetTransportSequenceNumber() override;
+  virtual void SetTransportSequenceNumber(uint16_t value) override;
+  virtual scoped_refptr<FeedbackRequest> GetFeedbackRequest() override;
+  virtual void SetFeedbackRequest(
+      scoped_refptr<FeedbackRequest> value) override;
+  virtual bool GetHasAudioLevel() override;
+  virtual void SetHasAudioLevel(bool value) override;
+  virtual bool GetVoiceActivity() override;
+  virtual void SetVoiceActivity(bool value) override;
+  virtual uint8_t GetAudioLevel() override;
+  virtual void SetAudioLevel(uint8_t value) override;
+  virtual bool GetHasVideoRotation() override;
+  virtual void SetHasVideoRotation(bool value) override;
+  virtual VideoRotation GetVideoRotation() override;
+  virtual void SetVideoRotation(VideoRotation value) override;
+  virtual bool GetHasVideoContentType() override;
+  virtual void SetHasVideoContentType(bool value) override;
+  virtual VideoContentType GetVideoContentType() override;
+  virtual void GetVideoContentType(VideoContentType value) override;
+  virtual bool GetHasVideoTiming() override;
+  virtual void SetHasVideoTiming(bool value) override;
+  virtual scoped_refptr<VideoSendTiming> GetVideoTiming() override;
+  virtual void SetVideoTiming(scoped_refptr<VideoSendTiming> value) override;
+  virtual scoped_refptr<VideoPlayoutDelay> GetPlayoutDelay() override;
+  virtual void SetPlayoutDelay(scoped_refptr<VideoPlayoutDelay> value) override;
+  virtual std::string GetStreamId() override;
+  virtual void SetStreamId(std::string value) override;
+  virtual std::string GetRepairedStreamId() override;
+  virtual void SetRepairedStreamId(std::string value) override;
+  virtual std::string GetMid() override;
+  virtual void SetMid(std::string value) override;
+  virtual scoped_refptr<ColorSpace> GetColorSpace() override;
+  virtual void SetColorSpace(scoped_refptr<ColorSpace> value) override;
 
   webrtc::RTPHeaderExtension rtp_header_extension();
 
  private:
   webrtc::RTPHeaderExtension rtp_header_extension_;
+
 };
 
 class RTPHeaderImpl : public RTPHeader {

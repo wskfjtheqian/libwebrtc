@@ -2,7 +2,6 @@
 #define LIB_WEBRTC_RTP_TRANSCEIVER_IMPL_H_
 
 #include <pc/rtp_transceiver.h>
-
 #include "rtp_transceiver.h"
 
 namespace libwebrtc {

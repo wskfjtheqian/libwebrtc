@@ -68,7 +68,7 @@ class IceTransportFactory {
  public:
   virtual ~IceTransportFactory() = default;
 
-  virtual rtc::scoped_refptr<IceTransport> CreateIceTransport(
+  virtual scoped_refptr<IceTransport> CreateIceTransport(
       const std::string& transport_name,
       int component,
       IceTransportInit init) = 0;

@@ -44,8 +44,6 @@ class DtmfSenderImpl : public DtmfSender,
 
   virtual int comma_delay() const override;
 
- protected:
-  virtual ~DtmfSenderImpl() = default;
 
  private:
   rtc::scoped_refptr<webrtc::DtmfSenderInterface> dtmf_sender_;

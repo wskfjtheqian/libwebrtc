@@ -10,19 +10,33 @@ namespace libwebrtc {
 
 
 class DtlsTransportInformationImpl : DtlsTransportInformation {
+ public:
 
+  virtual DtlsTransportInformation& operator=(
+      scoped_refptr<DtlsTransportInformation> c) override;
+  virtual DtlsTransportState GetState() const override;
+  virtual int GetSslCipherSuite() const override;
+  virtual int GetSrtpCipherSuite() const override;
+
+
+  webrtc::DtlsTransportInformation& dtls_transport_information();
+
+ private:
+  webrtc::DtlsTransportInformation dtls_transport_information_;
 };
 
 
 class DtlsTransportImpl : public DtlsTransport
     ,public webrtc::DtlsTransportObserverInterface {
  public:
+  DtlsTransportImpl();
+
   DtlsTransportImpl(
       rtc::scoped_refptr<webrtc::DtlsTransportInterface> dtls_transport);
   
-  virtual rtc::scoped_refptr<IceTransport> ice_transport() override;
+  virtual scoped_refptr<IceTransport> GetIceTransport() override;
 
-  virtual DtlsTransportInformation Information() override;
+  virtual scoped_refptr<DtlsTransportInformation> GetInformation() override;
 
   virtual void RegisterObserver(DtlsTransportObserver* observer) override ;
 
@@ -33,8 +47,8 @@ class DtlsTransportImpl : public DtlsTransport
 
   virtual void OnError(webrtc::RTCError error) override;
 
- protected:
-  virtual  ~DtlsTransportImpl();
+
+  rtc::scoped_refptr<webrtc::DtlsTransportInterface> dtls_transport();
 
  private:
   rtc::scoped_refptr<webrtc::DtlsTransportInterface> dtls_transport_;
