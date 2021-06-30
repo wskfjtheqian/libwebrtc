@@ -1,7 +1,6 @@
 #ifndef LIB_WEBRTC_RTC_PEERCONNECTION_HXX
 #define LIB_WEBRTC_RTC_PEERCONNECTION_HXX
 
-#include "rtc_types.h"
 #include "rtc_audio_track.h"
 #include "rtc_data_channel.h"
 #include "rtc_ice_candidate.h"
@@ -12,8 +11,6 @@
 #include "rtc_session_description.h"
 #include "rtc_video_source.h"
 #include "rtc_video_track.h"
-
-#include <string.h>
 
 namespace libwebrtc {
 

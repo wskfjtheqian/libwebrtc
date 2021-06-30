@@ -17,10 +17,6 @@
 #include <stdexcept>
 #endif
 
-#ifdef WIN32
-#pragma warning(disable : 4172)
-#endif
-
 namespace bsp {
 namespace detail {
 template <class T, int Capacity>
@@ -512,9 +508,9 @@ class inlined_vector {
 
   void validate_iterator(const_iterator it) {
 #ifndef NDEBUG
-    if (it < begin() || it > end()) {
-      out_of_range_error("inlined_vector::validate_iterator invalid iterator");
-    }
+		if (it < begin() || it > end()) {
+			error("inlined_vector::validate_iterator invalid iterator");
+		}
 #endif
   }
 
