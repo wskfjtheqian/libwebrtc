@@ -34,12 +34,10 @@ RTCPeerConnectionFactoryImpl::~RTCPeerConnectionFactoryImpl() {}
 bool RTCPeerConnectionFactoryImpl::Initialize() {
   if (!audio_device_module_) {
     task_queue_factory_ = webrtc::CreateDefaultTaskQueueFactory();
-    worker_thread_->Invoke<void>(
-        RTC_FROM_HERE,[=]{
-            CreateAudioDeviceModule_w();
-        });
+    worker_thread_->Invoke<void>(RTC_FROM_HERE,
+                                 [=] { CreateAudioDeviceModule_w(); });
   }
-  
+
   if (!rtc_peerconnection_factory_) {
     rtc_peerconnection_factory_ = webrtc::CreatePeerConnectionFactory(
         network_thread_, worker_thread_, signaling_thread_,
@@ -62,10 +60,8 @@ bool RTCPeerConnectionFactoryImpl::Terminate() {
   video_device_impl_ = nullptr;
   rtc_peerconnection_factory_ = NULL;
   if (audio_device_module_) {
-    worker_thread_->Invoke<void>(
-        RTC_FROM_HERE,[this]{
-            DestroyAudioDeviceModule_w();
-        });
+    worker_thread_->Invoke<void>(RTC_FROM_HERE,
+                                 [this] { DestroyAudioDeviceModule_w(); });
   }
 
   return true;
@@ -74,7 +70,8 @@ bool RTCPeerConnectionFactoryImpl::Terminate() {
 void RTCPeerConnectionFactoryImpl::CreateAudioDeviceModule_w() {
   if (!audio_device_module_)
     audio_device_module_ = webrtc::AudioDeviceModule::Create(
-        webrtc::AudioDeviceModule::kPlatformDefaultAudio, task_queue_factory_.get());
+        webrtc::AudioDeviceModule::kPlatformDefaultAudio,
+        task_queue_factory_.get());
 }
 
 void RTCPeerConnectionFactoryImpl::DestroyAudioDeviceModule_w() {
@@ -106,10 +103,8 @@ void RTCPeerConnectionFactoryImpl::Delete(
 
 scoped_refptr<RTCAudioDevice> RTCPeerConnectionFactoryImpl::GetAudioDevice() {
   if (!audio_device_module_) {
-    worker_thread_->Invoke<void>(
-        RTC_FROM_HERE,[this]{
-           CreateAudioDeviceModule_w();
-        });
+    worker_thread_->Invoke<void>(RTC_FROM_HERE,
+                                 [this] { CreateAudioDeviceModule_w(); });
   }
 
   if (!audio_device_impl_)
@@ -128,7 +123,7 @@ scoped_refptr<RTCVideoDevice> RTCPeerConnectionFactoryImpl::GetVideoDevice() {
 }
 
 scoped_refptr<RTCAudioSource> RTCPeerConnectionFactoryImpl::CreateAudioSource(
-    const char* audio_source_label) {
+    const string audio_source_label) {
   rtc::scoped_refptr<webrtc::AudioSourceInterface> rtc_source_track =
       rtc_peerconnection_factory_->CreateAudioSource(cricket::AudioOptions());
 
@@ -139,18 +134,19 @@ scoped_refptr<RTCAudioSource> RTCPeerConnectionFactoryImpl::CreateAudioSource(
 
 scoped_refptr<RTCVideoSource> RTCPeerConnectionFactoryImpl::CreateVideoSource(
     scoped_refptr<RTCVideoCapturer> capturer,
-    const char* video_source_label,
+    const string video_source_label,
     scoped_refptr<RTCMediaConstraints> constraints) {
   if (rtc::Thread::Current() != signaling_thread_) {
     scoped_refptr<RTCVideoSource> source =
         signaling_thread_->Invoke<scoped_refptr<RTCVideoSource>>(
-            RTC_FROM_HERE,[this,capturer,video_source_label,constraints]{
-              return CreateVideoSource_s(capturer,video_source_label,constraints);
+            RTC_FROM_HERE, [this, capturer, video_source_label, constraints] {
+              return CreateVideoSource_s(capturer, video_source_label.c_str(),
+                                         constraints);
             });
     return source;
   }
 
-  return CreateVideoSource_s(capturer, video_source_label, constraints);
+  return CreateVideoSource_s(capturer, video_source_label.c_str(), constraints);
 }
 
 scoped_refptr<RTCVideoSource> RTCPeerConnectionFactoryImpl::CreateVideoSource_s(
@@ -162,16 +158,17 @@ scoped_refptr<RTCVideoSource> RTCPeerConnectionFactoryImpl::CreateVideoSource_s(
   /*RTCMediaConstraintsImpl* media_constraints =
           static_cast<RTCMediaConstraintsImpl*>(constraints.get());*/
   rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> rtc_source_track =
-  new rtc::RefCountedObject<webrtc::internal::CapturerTrackSource>(capturer_impl->video_capturer());
+      new rtc::RefCountedObject<webrtc::internal::CapturerTrackSource>(
+          capturer_impl->video_capturer());
   scoped_refptr<RTCVideoSourceImpl> source = scoped_refptr<RTCVideoSourceImpl>(
       new RefCountedObject<RTCVideoSourceImpl>(rtc_source_track));
   return source;
 }
 
 scoped_refptr<RTCMediaStream> RTCPeerConnectionFactoryImpl::CreateStream(
-    const char* stream_id) {
+    const string stream_id) {
   rtc::scoped_refptr<webrtc::MediaStreamInterface> rtc_stream =
-      rtc_peerconnection_factory_->CreateLocalMediaStream(stream_id);
+      rtc_peerconnection_factory_->CreateLocalMediaStream(stream_id.c_str());
 
   scoped_refptr<MediaStreamImpl> stream = scoped_refptr<MediaStreamImpl>(
       new RefCountedObject<MediaStreamImpl>(rtc_stream));
@@ -181,13 +178,13 @@ scoped_refptr<RTCMediaStream> RTCPeerConnectionFactoryImpl::CreateStream(
 
 scoped_refptr<RTCVideoTrack> RTCPeerConnectionFactoryImpl::CreateVideoTrack(
     scoped_refptr<RTCVideoSource> source,
-    const char* track_id) {
+    const string track_id) {
   scoped_refptr<RTCVideoSourceImpl> source_adapter(
       static_cast<RTCVideoSourceImpl*>(source.get()));
 
   rtc::scoped_refptr<webrtc::VideoTrackInterface> rtc_video_track =
       rtc_peerconnection_factory_->CreateVideoTrack(
-          track_id, source_adapter->rtc_source_track());
+          track_id.c_str(), source_adapter->rtc_source_track());
 
   scoped_refptr<VideoTrackImpl> video_track = scoped_refptr<VideoTrackImpl>(
       new RefCountedObject<VideoTrackImpl>(rtc_video_track));
@@ -206,17 +203,17 @@ scoped_refptr<RTCVideoTrack> RTCPeerConnectionFactoryImpl::CreateVideoTrack(
 
 scoped_refptr<RTCAudioTrack> RTCPeerConnectionFactoryImpl::CreateAudioTrack(
     scoped_refptr<RTCAudioSource> source,
-    const char* track_id) {
+    const string track_id) {
   RTCAudioSourceImpl* source_impl =
       static_cast<RTCAudioSourceImpl*>(source.get());
 
   rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
       rtc_peerconnection_factory_->CreateAudioTrack(
-          track_id, source_impl->rtc_audio_source()));
+          track_id.c_str(), source_impl->rtc_audio_source()));
 
   scoped_refptr<AudioTrackImpl> track = scoped_refptr<AudioTrackImpl>(
       new RefCountedObject<AudioTrackImpl>(audio_track));
   return track;
 }
 
-} // namespace libwebrtc
+}  // namespace libwebrtc

@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "api/data_channel_interface.h"
-#include "api/media_stream_interface.h"
 #include "base/callback_forward.h"
 #include "pc/media_session.h"
 #include "rtc_base/logging.h"
@@ -13,9 +12,9 @@
 #include "rtc_ice_candidate_impl.h"
 #include "rtc_media_stream_impl.h"
 #include "rtc_mediaconstraints_impl.h"
-#include "rtp_transceiver_impl.h"
-#include "base/refcountedobject.h"
-#include "rtp_sender_impl.h"
+#include "rtc_rtp_receive_imp.h"
+#include "rtc_rtp_sender_impl.h"
+#include "rtc_rtp_transceiver_impl.h"
 
 using rtc::Thread;
 
@@ -187,6 +186,37 @@ RTCPeerConnectionImpl::~RTCPeerConnectionImpl() {
   RTC_LOG(INFO) << __FUNCTION__ << ": dtor";
 }
 
+void RTCPeerConnectionImpl::OnAddTrack(
+    rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
+    const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
+        streams) {
+  if (nullptr != observer_) {
+    vector<scoped_refptr<RTCMediaStream>> out_streams;
+    for (auto item : streams) {
+      out_streams.push_back(new RefCountedObject<MediaStreamImpl>(item));
+    }
+    scoped_refptr<RTCRtpReceiver> rtc_receiver =
+        new RefCountedObject<RTCRtpReceiverImpl>(receiver);
+    observer_->OnAddTrack(out_streams, rtc_receiver);
+  }
+}
+
+void RTCPeerConnectionImpl::OnTrack(
+    rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) {
+  if (nullptr != observer_) {
+    observer_->OnTrack(
+        new RefCountedObject<RTCRtpTransceiverImpl>(transceiver));
+  }
+}
+
+void RTCPeerConnectionImpl::OnRemoveTrack(
+    rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) {
+  if (nullptr != observer_) {
+    observer_->OnRemoveTrack(
+        new RefCountedObject<RTCRtpReceiverImpl>(receiver));
+  }
+}
+
 // Called when a remote stream is added
 void RTCPeerConnectionImpl::OnAddStream(
     rtc::scoped_refptr<webrtc::MediaStreamInterface> stream) {
@@ -201,14 +231,6 @@ void RTCPeerConnectionImpl::OnAddStream(
 
   if (observer_) {
     observer_->OnAddStream(remote_stream);
-
-    for (auto track : remote_stream->GetAudioTracks()) {
-      observer_->OnAddTrack(remote_stream, track);
-    }
-
-    for (auto track : remote_stream->GetVideoTracks()) {
-      observer_->OnAddTrack(remote_stream, track);
-    }
   }
 }
 
@@ -230,12 +252,6 @@ void RTCPeerConnectionImpl::OnRemoveStream(
       observer_->OnRemoveStream(recv_stream);
     }
 
-    for (auto track : recv_stream->GetVideoTracks()) {
-      observer_->OnRemoveTrack(recv_stream, track);
-    }
-    for (auto track : recv_stream->GetVideoTracks()) {
-      observer_->OnRemoveTrack(recv_stream, track);
-    }
     remote_streams_.erase(
         std::find(remote_streams_.begin(), remote_streams_.end(), recv_stream));
   }
@@ -254,7 +270,6 @@ void RTCPeerConnectionImpl::OnRenegotiationNeeded() {
   if (observer_) {
     observer_->OnRenegotiationNeeded();
   }
- 
 }
 
 void RTCPeerConnectionImpl::OnIceGatheringChange(
@@ -275,12 +290,12 @@ void RTCPeerConnectionImpl::OnSignalingChange(
     observer_->OnSignalingState(signaling_state_map[new_state]);
 }
 
-void RTCPeerConnectionImpl::AddCandidate(const char* mid,
-                                         int midx,
-                                         const char* candiate) {
+void RTCPeerConnectionImpl::AddCandidate(const string mid,
+                                         int mid_mline_index,
+                                         const string candiate) {
   webrtc::SdpParseError error;
-  webrtc::IceCandidateInterface* candidate =
-      webrtc::CreateIceCandidate(mid, midx, candiate, &error);
+  webrtc::IceCandidateInterface* candidate = webrtc::CreateIceCandidate(
+      mid.c_str(), mid_mline_index, candiate.c_str(), &error);
   if (!candidate)
     rtc_peerconnection_->AddIceCandidate(candidate);
 }
@@ -308,8 +323,8 @@ void RTCPeerConnectionImpl::OnIceCandidate(
   if (observer_ && candidate->ToString(&cand_sdp)) {
     SdpParseError error;
     scoped_refptr<RTCIceCandidate> cand =
-        CreateRTCIceCandidate(cand_sdp.c_str(), candidate->sdp_mid().c_str(),
-                              candidate->sdp_mline_index(), &error);
+        RTCIceCandidate::Create(cand_sdp.c_str(), candidate->sdp_mid().c_str(),
+                                candidate->sdp_mline_index(), &error);
     observer_->OnIceCandidate(cand);
   }
 
@@ -344,11 +359,11 @@ bool RTCPeerConnectionImpl::Initialize() {
 
   for (int i = 0; i < kMaxIceServerSize; i++) {
     IceServer ice_server = configuration_.ice_servers[i];
-    if (strlen(ice_server.uri) > 0) {
+    if (ice_server.uri.size() > 0) {
       webrtc::PeerConnectionInterface::IceServer server;
-      server.uri = ice_server.uri;
-      server.username = ice_server.username;
-      server.password = ice_server.password;
+      server.uri = ice_server.uri.str();
+      server.username = ice_server.username.str();
+      server.password = ice_server.password.str();
       config.servers.push_back(server);
     }
   }
@@ -391,7 +406,7 @@ bool RTCPeerConnectionImpl::Initialize() {
 }
 
 scoped_refptr<RTCDataChannel> RTCPeerConnectionImpl::CreateDataChannel(
-    const char* label,
+    const string label,
     const RTCDataChannelInit* dataChannelDict) {
   webrtc::DataChannelInit init;
   init.id = dataChannelDict->id;
@@ -399,11 +414,11 @@ scoped_refptr<RTCDataChannel> RTCPeerConnectionImpl::CreateDataChannel(
   init.maxRetransmitTime = dataChannelDict->maxRetransmitTime;
   init.negotiated = dataChannelDict->negotiated;
   init.ordered = dataChannelDict->ordered;
-  init.protocol = dataChannelDict->protocol;
+  init.protocol = dataChannelDict->protocol.c_str();
   init.reliable = dataChannelDict->reliable;
 
   rtc::scoped_refptr<webrtc::DataChannelInterface> rtc_data_channel =
-      rtc_peerconnection_->CreateDataChannel(label, &init);
+      rtc_peerconnection_->CreateDataChannel(label.c_str(), &init);
 
   data_channel_ = scoped_refptr<RTCDataChannelImpl>(
       new RefCountedObject<RTCDataChannelImpl>(rtc_data_channel));
@@ -411,13 +426,13 @@ scoped_refptr<RTCDataChannel> RTCPeerConnectionImpl::CreateDataChannel(
   return data_channel_;
 }
 
-void RTCPeerConnectionImpl::SetLocalDescription(const char* sdp,
-                                                const char* type,
+void RTCPeerConnectionImpl::SetLocalDescription(const string sdp,
+                                                const string type,
                                                 OnSetSdpSuccess success,
                                                 OnSetSdpFailure failure) {
   webrtc::SdpParseError error;
   webrtc::SessionDescriptionInterface* session_description(
-      webrtc::CreateSessionDescription(type, sdp, &error));
+      webrtc::CreateSessionDescription(type.c_str(), sdp.c_str(), &error));
 
   if (!session_description) {
     std::string error = "Can't parse received session description message.";
@@ -431,14 +446,14 @@ void RTCPeerConnectionImpl::SetLocalDescription(const char* sdp,
       session_description);
 }
 
-void RTCPeerConnectionImpl::SetRemoteDescription(const char* sdp,
-                                                 const char* type,
+void RTCPeerConnectionImpl::SetRemoteDescription(const string sdp,
+                                                 const string type,
                                                  OnSetSdpSuccess success,
                                                  OnSetSdpFailure failure) {
   RTC_LOG(INFO) << " Received session description :" << sdp;
   webrtc::SdpParseError error;
   webrtc::SessionDescriptionInterface* session_description(
-      webrtc::CreateSessionDescription(type, sdp, &error));
+      webrtc::CreateSessionDescription(type.c_str(), sdp.c_str(), &error));
 
   if (!session_description) {
     std::string error = "Can't parse received session description message.";
@@ -551,23 +566,17 @@ void RTCPeerConnectionImpl::Close() {
       if (observer_) {
         observer_->OnRemoveStream(stream);
       }
-      for (auto track : stream->GetAudioTracks()) {
-        observer_->OnRemoveTrack(stream, track);
-      }
-      for (auto track : stream->GetVideoTracks()) {
-        observer_->OnRemoveTrack(stream, track);
-      }
+      /*   stream->GetAudioTracks([&](scoped_refptr<RTCMediaTrack> track) {
+           observer_->OnRemoveTrack([&](OnRTCMediaStream on) { on(stream); },
+                                    track);
+         });
+         stream->GetVideoTracks([&](scoped_refptr<RTCMediaTrack> track) {
+           observer_->OnRemoveTrack([&](OnRTCMediaStream on) { on(stream); },
+                                    track);
+         });*/
     }
     remote_streams_.clear();
   }
-}
-
-MediaStreamVector RTCPeerConnectionImpl::local_streams() {
-  return local_streams_;
-}
-
-MediaStreamVector RTCPeerConnectionImpl::remote_streams() {
-  return remote_streams_;
 }
 
 int RTCPeerConnectionImpl::AddStream(scoped_refptr<RTCMediaStream> stream) {
@@ -628,77 +637,105 @@ bool RTCPeerConnectionImpl::GetStats(
       webrtc::PeerConnectionInterface::kStatsOutputLevelDebug);
 }
 
-
-void RTCPeerConnectionImpl::AddTransceiver(
+scoped_refptr<RTCRtpTransceiver> RTCPeerConnectionImpl::AddTransceiver(
     scoped_refptr<RTCMediaTrack> track,
-    scoped_refptr<RtpTransceiverInit> init,
-    OnAddTransceiver onAdd) {
-  RtpTransceiverInitImpl* initImpl =
-      static_cast<RtpTransceiverInitImpl*>(init.get());
+    scoped_refptr<RTCRtpTransceiverInit> init) {
+  RTCRtpTransceiverInitImpl* initImpl =
+      static_cast<RTCRtpTransceiverInitImpl*>(init.get());
 
   webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpTransceiverInterface>>
       errorOr;
-  if (track->kind() == webrtc::MediaStreamTrackInterface::kVideoKind) {
+  std::string kind = track->kind().c_str();
+  if (0 == kind.compare(webrtc::MediaStreamTrackInterface::kVideoKind)) {
     VideoTrackImpl* impl = static_cast<VideoTrackImpl*>(track.get());
-    errorOr = rtc_peerconnection_->AddTransceiver(impl->rtc_track(),
-                                                  *initImpl->rtc_init().get());
-  } else if (track->kind() == webrtc::MediaStreamTrackInterface::kAudioKind) {
+    errorOr = rtc_peerconnection_->AddTransceiver(
+        impl->rtc_track(), initImpl->rtp_transceiver_init());
+  } else if (0 == kind.compare(webrtc::MediaStreamTrackInterface::kAudioKind)) {
     AudioTrackImpl* impl = static_cast<AudioTrackImpl*>(track.get());
-    errorOr = rtc_peerconnection_->AddTransceiver(impl->rtc_track(),
-                                                  *initImpl->rtc_init().get());
+    errorOr = rtc_peerconnection_->AddTransceiver(
+        impl->rtc_track(), initImpl->rtp_transceiver_init());
   }
-  if (onAdd) {
-    scoped_refptr<RtpTransceiverImpl> ret =
-        new RefCountedObject<RtpTransceiverImpl>();
-    ret->SetRtpTransceiverInterface(errorOr.value());
-    onAdd(ret, errorOr.error().message());
+
+  if (errorOr.ok()) {
+    return new RefCountedObject<RTCRtpTransceiverImpl>(errorOr.value());
   }
-}
-void RTCPeerConnectionImpl::AddTransceiver(scoped_refptr<RTCMediaTrack> track,
-                                           OnAddTransceiver onAdd) {
-  webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpTransceiverInterface>>
-      errorOr;
-  if (track->kind() == webrtc::MediaStreamTrackInterface::kVideoKind) {
-    VideoTrackImpl* impl = static_cast<VideoTrackImpl*>(track.get());
-    errorOr = rtc_peerconnection_->AddTransceiver(impl->rtc_track());
-  } else if (track->kind() == webrtc::MediaStreamTrackInterface::kAudioKind) {
-    AudioTrackImpl* impl = static_cast<AudioTrackImpl*>(track.get());
-    errorOr = rtc_peerconnection_->AddTransceiver(impl->rtc_track());
-  }
-  if (onAdd) {
-    scoped_refptr<RtpTransceiverImpl> ret =
-        new RefCountedObject<RtpTransceiverImpl>();
-    ret->SetRtpTransceiverInterface(errorOr.value());
-    onAdd(ret, errorOr.error().message());
-  }
+
+  return scoped_refptr<RTCRtpTransceiver>();
 }
 
-void RTCPeerConnectionImpl::AddTrack(scoped_refptr<RTCMediaTrack> track,
-                                     const std::vector<std::string>& streamIds,
-                                     libwebrtc ::OnAddTrack onAdd) {
+scoped_refptr<RTCRtpTransceiver> RTCPeerConnectionImpl::AddTransceiver(
+    scoped_refptr<RTCMediaTrack> track) {
+  webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpTransceiverInterface>>
+      errorOr;
+  std::string kind = track->kind().c_str();
+  if (0 == kind.compare(webrtc::MediaStreamTrackInterface::kVideoKind)) {
+    VideoTrackImpl* impl = static_cast<VideoTrackImpl*>(track.get());
+    errorOr = rtc_peerconnection_->AddTransceiver(impl->rtc_track());
+  } else if (0 == kind.compare(webrtc::MediaStreamTrackInterface::kAudioKind)) {
+    AudioTrackImpl* impl = static_cast<AudioTrackImpl*>(track.get());
+    errorOr = rtc_peerconnection_->AddTransceiver(impl->rtc_track());
+  }
+
+  if (errorOr.ok()) {
+    return new RefCountedObject<RTCRtpTransceiverImpl>(errorOr.value());
+  }
+  // onAdd(scoped_refptr<RTCRtpTransceiver>(), errorOr.error().message());
+  return scoped_refptr<RTCRtpTransceiver>();
+}
+
+scoped_refptr<RTCRtpSender> RTCPeerConnectionImpl::AddTrack(
+    scoped_refptr<RTCMediaTrack> track,
+    vector<string> streamIds) {
   webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpSenderInterface>> errorOr;
 
-  if (track->kind() == webrtc::MediaStreamTrackInterface::kVideoKind) {
+  std::vector<std::string> stream_ids;
+  for (auto id : streamIds) {
+    stream_ids.push_back(id.str());
+  }
+  std::string kind = track->kind().c_str();
+  if (0 == kind.compare(webrtc::MediaStreamTrackInterface::kVideoKind)) {
     VideoTrackImpl* impl = static_cast<VideoTrackImpl*>(track.get());
-    errorOr = rtc_peerconnection_->AddTrack(impl->rtc_track(), streamIds);
-  } else if (track->kind() == webrtc::MediaStreamTrackInterface::kAudioKind) {
+    errorOr = rtc_peerconnection_->AddTrack(impl->rtc_track(), stream_ids);
+  } else if (0 == kind.compare(webrtc::MediaStreamTrackInterface::kAudioKind)) {
     AudioTrackImpl* impl = static_cast<AudioTrackImpl*>(track.get());
-    errorOr = rtc_peerconnection_->AddTrack(impl->rtc_track(), streamIds);
+    errorOr = rtc_peerconnection_->AddTrack(impl->rtc_track(), stream_ids);
   }
 
-  if (onAdd) {
-    onAdd(new RefCountedObject<RtpSenderImpl>(errorOr.value()),
-          errorOr.error().message());
-  };
+  if (errorOr.ok()) {
+    return new RefCountedObject<RTCRtpSenderImpl>(errorOr.value());
+  }
+
+  // onAdd(scoped_refptr<RTCRtpSender>(), errorOr.error().message());
+  return scoped_refptr<RTCRtpSender>();
 }
 
-bool RTCPeerConnectionImpl::RemoveTrack(scoped_refptr<RtpSender> render) {
-  RtpSenderImpl* impl = static_cast<RtpSenderImpl*>(render.get());
-  return rtc_peerconnection_->RemoveTrack(impl->rtp_sender());
+bool RTCPeerConnectionImpl::RemoveTrack(scoped_refptr<RTCRtpSender> render) {
+  RTCRtpSenderImpl* impl = static_cast<RTCRtpSenderImpl*>(render.get());
+  return rtc_peerconnection_->RemoveTrack(impl->rtc_rtp_sender());
 }
 
-scoped_refptr<RtpSender> RTCPeerConnectionImpl::GetSenders() {
-  return new RefCountedObject<RtpSenderImpl>(rtc_peerconnection_->GetSenders());
+vector<scoped_refptr<RTCRtpSender>> RTCPeerConnectionImpl::senders() {
+  vector<scoped_refptr<RTCRtpSender>> vec;
+  for (auto item : rtc_peerconnection_->GetSenders()) {
+    vec.push_back(new RefCountedObject<RTCRtpSenderImpl>(item));
+  }
+  return vec;
+}
+
+vector<scoped_refptr<RTCRtpTransceiver>> RTCPeerConnectionImpl::transceivers() {
+  vector<scoped_refptr<RTCRtpTransceiver>> vec;
+  for (auto item : rtc_peerconnection_->GetTransceivers()) {
+    vec.push_back(new RefCountedObject<RTCRtpTransceiverImpl>(item));
+  }
+  return vec;
+}
+
+vector<scoped_refptr<RTCRtpReceiver>> RTCPeerConnectionImpl::receivers() {
+  vector<scoped_refptr<RTCRtpReceiver>> vec;
+  for (auto item : rtc_peerconnection_->GetReceivers()) {
+    vec.push_back(new RefCountedObject<RTCRtpReceiverImpl>(item));
+  }
+  return vec;
 }
 
 void WebRTCStatsObserver::OnComplete(const webrtc::StatsReports& reports) {
@@ -759,15 +796,15 @@ void WebRTCStatsObserver::OnComplete(const webrtc::StatsReports& reports) {
 
     kv = report->FindValue(webrtc::StatsReport::kStatsValueNameTrackId);
     if (kv) {
-      strncpy(stats.msid, kv->static_string_val(), sizeof(stats.msid));
+      stats.msid = kv->static_string_val();
     }
 
     kv = report->FindValue(webrtc::StatsReport::kStatsValueNameMediaType);
     if (kv) {
-      strncpy(stats.kind, kv->static_string_val(), sizeof(stats.kind));
+      stats.kind = kv->static_string_val();
     }
 
-    strncpy(stats.direction, direction_.c_str(), sizeof(stats.direction));
+    stats.direction = direction_.c_str();
   }
 
   if (observer_)
