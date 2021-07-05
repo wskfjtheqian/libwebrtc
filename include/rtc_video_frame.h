@@ -2,13 +2,19 @@
 #define LIB_WEBRTC_RTC_VIDEO_FRAME_HXX
 
 #include "rtc_types.h"
-#include "rtc_video_renderer.h"
 
 namespace libwebrtc {
 
 class RTCVideoFrame : public RefCountInterface {
  public:
   enum class Type { kARGB, kBGRA, kABGR, kRGBA };
+
+  enum VideoRotation {
+    kVideoRotation_0 = 0,
+    kVideoRotation_90 = 90,
+    kVideoRotation_180 = 180,
+    kVideoRotation_270 = 270
+  };
 
  public:
   LIB_WEBRTC_API static scoped_refptr<RTCVideoFrame>

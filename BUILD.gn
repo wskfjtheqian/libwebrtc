@@ -47,8 +47,6 @@ rtc_shared_library("libwebrtc"){
 
     "include/base/atomicops.h",
     "include/base/fixed_size_function.h",
-    "include/base/fixed_string.h",
-    "include/base/fixed_map.h",
     "include/base/inlined_vector.h",
     "include/base/refcount.h",
     "include/base/refcountedobject.h",

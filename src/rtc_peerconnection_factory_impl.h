@@ -11,8 +11,6 @@
 #include "api/peer_connection_interface.h"
 #include "api/task_queue/task_queue_factory.h"
 #include "rtc_base/thread.h"
-#include "api/task_queue/task_queue_factory.h"
-#include <memory>
 
 namespace libwebrtc {
 
