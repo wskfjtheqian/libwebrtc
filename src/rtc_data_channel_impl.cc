@@ -11,11 +11,11 @@ RTCDataChannelImpl::RTCDataChannelImpl(
 
 void RTCDataChannelImpl::Send(const string data, bool binary /*= false*/) {
   if (binary) {
-    rtc::CopyOnWriteBuffer binary(data.str());
+    rtc::CopyOnWriteBuffer binary(data);
     webrtc::DataBuffer buffer(binary, true);
     rtc_data_channel_->Send(buffer);
   } else {
-    webrtc::DataBuffer buffer(data.str());
+    webrtc::DataBuffer buffer(data);
     rtc_data_channel_->Send(buffer);
   }
 }
