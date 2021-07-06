@@ -6,8 +6,15 @@
 namespace libwebrtc {
 
 LIB_WEBRTC_API scoped_refptr<RTCRtpTransceiverInit>
-RTCRtpTransceiverInit::Create() {
-  return new RefCountedObject<RTCRtpTransceiverInitImpl>();
+RTCRtpTransceiverInit::Create(
+    RTCRtpTransceiverDirection direction,
+    const vector<string> stream_ids,
+    const vector<scoped_refptr<RTCRtpEncodingParameters>> encodings) {
+  auto init = new RefCountedObject<RTCRtpTransceiverInitImpl>();
+  init->set_direction(direction);
+  init->set_stream_ids(stream_ids);
+  init->set_send_encodings(encodings);
+  return init;
 }
 
 RTCRtpTransceiverInitImpl::RTCRtpTransceiverInitImpl() {}
@@ -34,7 +41,7 @@ const vector<string> RTCRtpTransceiverInitImpl::stream_ids() {
 void RTCRtpTransceiverInitImpl::set_stream_ids(const vector<string> ids) {
   std::vector<std::string> list;
   for (auto id : ids) {
-    list.push_back(id.str());
+    list.push_back(to_std_string(id));
   }
   rtp_transceiver_init_.stream_ids = list;
 }
