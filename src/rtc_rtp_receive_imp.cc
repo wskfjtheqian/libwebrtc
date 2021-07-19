@@ -47,20 +47,16 @@ scoped_refptr<RTCDtlsTransport> RTCRtpReceiverImpl::dtls_transport() const {
       rtp_receiver_->dtls_transport());
 }
 
-const vector<string> RTCRtpReceiverImpl::stream_ids() const {
-  vector<string> vec;
-  for (auto item : rtp_receiver_->stream_ids()) {
-    vec.push_back(item.c_str());
-  }
-  return vec;
+scoped_refptr<RTCStreamIds> RTCRtpReceiverImpl::stream_ids() const {
+  return new RefCountedObject<RTCStreamIdsImpl>(rtp_receiver_->stream_ids());
 }
 
-vector<scoped_refptr<RTCMediaStream>> RTCRtpReceiverImpl::streams() const {
-  vector<scoped_refptr<RTCMediaStream>> streams;
+scoped_refptr<RTCMediaStreams> RTCRtpReceiverImpl::streams() const {
+ std:: vector<scoped_refptr<RTCMediaStream>> streams;
   for (auto item : rtp_receiver_->streams()) {
     streams.push_back(new RefCountedObject<MediaStreamImpl>(item));
   }
-  return streams;
+  return new RefCountedObject<RTCMediaStreamsImpl>(streams);
 }
 
 RTCMediaType RTCRtpReceiverImpl::media_type() const {
@@ -90,6 +86,42 @@ void RTCRtpReceiverImpl::SetObserver(RTCRtpReceiverObserver* observer) {
 
 void RTCRtpReceiverImpl::SetJitterBufferMinimumDelay(double delay_seconds) {
   rtp_receiver_->SetJitterBufferMinimumDelay(delay_seconds);
+}
+
+scoped_refptr<RTCRtpReceivers> RTCRtpReceivers::Create() {
+  return new RefCountedObject<RTCRtpReceiversImpl>();
+}
+
+RTCRtpReceiversImpl::RTCRtpReceiversImpl() {}
+
+RTCRtpReceiversImpl::RTCRtpReceiversImpl(
+    std::vector<scoped_refptr<RTCRtpReceiver>> list): _list(list) {}
+
+void RTCRtpReceiversImpl::Add(scoped_refptr<RTCRtpReceiver> value) {
+  _list.push_back(value);
+}
+
+scoped_refptr<RTCRtpReceiver> RTCRtpReceiversImpl::Get(int index) {
+  return _list.at(index);
+}
+
+int RTCRtpReceiversImpl::Size() {
+  return _list.size();
+}
+
+void RTCRtpReceiversImpl::Remove(int index) {
+  auto it = _list.begin() + index;
+  if (it != _list.end()) {
+    _list.erase(it);
+  }
+}
+
+void RTCRtpReceiversImpl::Clean() {
+  _list.clear();
+}
+
+std::vector<scoped_refptr<RTCRtpReceiver>> RTCRtpReceiversImpl::list() {
+  return _list;
 }
 
 }  // namespace libwebrtc

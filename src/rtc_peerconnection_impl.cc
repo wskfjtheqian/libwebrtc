@@ -191,13 +191,14 @@ void RTCPeerConnectionImpl::OnAddTrack(
     const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
         streams) {
   if (nullptr != observer_) {
-    vector<scoped_refptr<RTCMediaStream>> out_streams;
+    std::vector<scoped_refptr<RTCMediaStream>> out_streams;
     for (auto item : streams) {
       out_streams.push_back(new RefCountedObject<MediaStreamImpl>(item));
     }
     scoped_refptr<RTCRtpReceiver> rtc_receiver =
         new RefCountedObject<RTCRtpReceiverImpl>(receiver);
-    observer_->OnAddTrack(out_streams, rtc_receiver);
+    observer_->OnAddTrack(new RefCountedObject<RTCMediaStreamsImpl>(out_streams),
+                          rtc_receiver);
   }
 }
 
@@ -687,12 +688,12 @@ scoped_refptr<RTCRtpTransceiver> RTCPeerConnectionImpl::AddTransceiver(
 
 scoped_refptr<RTCRtpSender> RTCPeerConnectionImpl::AddTrack(
     scoped_refptr<RTCMediaTrack> track,
-    vector<string> streamIds) {
+    scoped_refptr<RTCStreamIds> streamIds) {
   webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpSenderInterface>> errorOr;
 
   std::vector<std::string> stream_ids;
-  for (auto id : streamIds) {
-    stream_ids.push_back(to_std_string(id));
+  for (auto id : static_cast<RTCStreamIdsImpl*>(streamIds.get())->list()) {
+    stream_ids.push_back(id);
   }
   std::string kind = to_std_string(track->kind());
   if (0 == kind.compare(webrtc::MediaStreamTrackInterface::kVideoKind)) {
@@ -716,28 +717,28 @@ bool RTCPeerConnectionImpl::RemoveTrack(scoped_refptr<RTCRtpSender> render) {
   return rtc_peerconnection_->RemoveTrack(impl->rtc_rtp_sender());
 }
 
-vector<scoped_refptr<RTCRtpSender>> RTCPeerConnectionImpl::senders() {
-  vector<scoped_refptr<RTCRtpSender>> vec;
+scoped_refptr<RTCRtpSenders> RTCPeerConnectionImpl::senders() {
+  std::vector<scoped_refptr<RTCRtpSender>> vec;
   for (auto item : rtc_peerconnection_->GetSenders()) {
     vec.push_back(new RefCountedObject<RTCRtpSenderImpl>(item));
   }
-  return vec;
+  return new RefCountedObject<RTCRtpSendersImpl>(vec);
 }
 
-vector<scoped_refptr<RTCRtpTransceiver>> RTCPeerConnectionImpl::transceivers() {
-  vector<scoped_refptr<RTCRtpTransceiver>> vec;
+scoped_refptr<RTCRtpTransceivers> RTCPeerConnectionImpl::transceivers() {
+  std::vector<scoped_refptr<RTCRtpTransceiver>> vec;
   for (auto item : rtc_peerconnection_->GetTransceivers()) {
     vec.push_back(new RefCountedObject<RTCRtpTransceiverImpl>(item));
   }
-  return vec;
+  return new RefCountedObject<RTCRtpTransceiversImpl>(vec);
 }
 
-vector<scoped_refptr<RTCRtpReceiver>> RTCPeerConnectionImpl::receivers() {
-  vector<scoped_refptr<RTCRtpReceiver>> vec;
+scoped_refptr<RTCRtpReceivers> RTCPeerConnectionImpl::receivers() {
+  std::vector<scoped_refptr<RTCRtpReceiver>> vec;
   for (auto item : rtc_peerconnection_->GetReceivers()) {
     vec.push_back(new RefCountedObject<RTCRtpReceiverImpl>(item));
   }
-  return vec;
+  return new RefCountedObject<RTCRtpReceiversImpl>(vec);
 }
 
 void WebRTCStatsObserver::OnComplete(const webrtc::StatsReports& reports) {

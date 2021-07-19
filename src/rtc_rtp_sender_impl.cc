@@ -5,6 +5,9 @@
 #include <src/rtc_dtmf_sender_impl.h>
 #include <src/rtc_rtp_parameters_impl.h>
 #include <src/rtc_video_track_impl.h>
+#include <src/rtc_media_stream_impl.h>
+
+
 
 namespace libwebrtc {
 RTCRtpSenderImpl::RTCRtpSenderImpl(
@@ -61,28 +64,27 @@ const string RTCRtpSenderImpl::id() const {
   return rtp_sender_->id().c_str();
 }
 
-const vector<string> RTCRtpSenderImpl::stream_ids() const {
-  vector<string> vec;
+scoped_refptr<RTCStreamIds> RTCRtpSenderImpl::stream_ids() const {
+  scoped_refptr<RTCStreamIds> vec;
   for (std::string item : rtp_sender_->stream_ids()) {
-    vec.push_back(item.c_str());
+    vec->Add(string(item.c_str(), item.size()));
   }
   return vec;
 }
 
-void RTCRtpSenderImpl::set_stream_ids(const vector<string> stream_ids) const {
-  std::vector<std::string> list;
-  for (auto id : stream_ids) {
-    list.push_back(to_std_string(id));
-  }
+void RTCRtpSenderImpl::set_stream_ids(
+    const scoped_refptr<RTCStreamIds> stream_ids) const {
+  std::vector<std::string> list =
+      static_cast<RTCStreamIdsImpl*>(stream_ids.get())->list();
   rtp_sender_->SetStreams(list);
 }
 
-const vector<scoped_refptr<RTCRtpEncodingParameters>>
-RTCRtpSenderImpl::init_send_encodings() const {
-  vector<scoped_refptr<RTCRtpEncodingParameters>> vec;
+scoped_refptr<RTCEncodings> RTCRtpSenderImpl::init_send_encodings()
+    const {
+  scoped_refptr<RTCEncodings> vec;
   for (webrtc::RtpEncodingParameters item :
        rtp_sender_->init_send_encodings()) {
-    vec.push_back(new RefCountedObject<RTCRtpEncodingParametersImpl>(item));
+    vec->Add(new RefCountedObject<RTCRtpEncodingParametersImpl>(item));
   }
   return vec;
 }
@@ -104,6 +106,39 @@ scoped_refptr<RTCDtmfSender> RTCRtpSenderImpl::dtmf_sender() const {
     return scoped_refptr<RTCDtmfSender>();
   }
   return new RefCountedObject<RTCDtmfSenderImpl>(rtp_sender_->GetDtmfSender());
+}
+
+
+RTCRtpSendersImpl::RTCRtpSendersImpl() {}
+
+RTCRtpSendersImpl::RTCRtpSendersImpl(
+    std::vector<scoped_refptr<RTCRtpSender>> list) :_list(list){}
+
+void RTCRtpSendersImpl::Add(scoped_refptr<RTCRtpSender> value) {
+  return _list.push_back(value);
+}
+
+scoped_refptr<RTCRtpSender> RTCRtpSendersImpl::Get(int index) {
+  return _list.at(index);
+}
+
+int RTCRtpSendersImpl::Size() {
+  return _list.size();
+}
+
+void RTCRtpSendersImpl::Remove(int index) {
+  auto it = _list.begin() + index;
+  if (it != _list.end()) {
+    _list.erase(it);
+  }
+}
+
+void RTCRtpSendersImpl::Clean() {
+  _list.clear();
+}
+
+std::vector<scoped_refptr<RTCRtpSender>> RTCRtpSendersImpl::list() {
+  return _list;
 }
 
 }  // namespace libwebrtc

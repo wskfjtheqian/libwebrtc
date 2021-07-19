@@ -50,6 +50,25 @@ class VideoTrackImpl : public RTCVideoTrack {
   string id_, kind_;
 };
 
+
+
+class RTCVideoTracksImpl : public RTCVideoTracks {
+ public:
+  RTCVideoTracksImpl();
+  RTCVideoTracksImpl(std::vector<scoped_refptr<RTCVideoTrack>> list);
+
+  virtual void Add(scoped_refptr<RTCVideoTrack> value) override;
+  virtual scoped_refptr<RTCVideoTrack> Get(int index) override;
+  virtual int Size() override;
+  virtual void Remove(int index) override;
+  virtual void Clean() override;
+
+  std::vector<scoped_refptr<RTCVideoTrack>> list();
+
+ private:
+  std::vector<scoped_refptr<RTCVideoTrack>> _list;
+};
+
 }  // namespace libwebrtc
 
 #endif  // LIB_WEBRTC_VIDEO_TRACK_IMPL_HXX

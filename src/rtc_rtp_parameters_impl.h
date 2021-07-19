@@ -6,6 +6,77 @@
 
 namespace libwebrtc {
 
+class RTCRtcpFeedbacksImpl : public RTCRtcpFeedbacks {
+ public:
+  virtual void Add(scoped_refptr<RTCRtcpFeedback> value) override;
+  virtual scoped_refptr<RTCRtcpFeedback> Get(int index) override;
+  virtual int Size() override;
+  virtual void Remove(int index) override;
+  virtual void Clean() override;
+  std::vector<scoped_refptr<RTCRtcpFeedback>> list();
+
+ private:
+  std::vector<scoped_refptr<RTCRtcpFeedback>> _list;
+};
+
+class RTCParametersImpl : public RTCParameters {
+ public:
+  virtual void Set(string key, string value) override;
+  virtual string Get(string key) override;
+  virtual int Size() override;
+  virtual void Remove(string key) override;
+  virtual void Clean() override;
+  virtual void ForEcoh(OnRTCParameters on) override;
+
+  std::map<std::string, std::string> map();
+
+ private:
+  std::map<std::string, std::string> _map;
+};
+    
+
+class RTCEncodingsImpl : public RTCEncodings {
+ public:
+  virtual void Add(scoped_refptr<RTCRtpEncodingParameters> value) override;
+  virtual scoped_refptr<RTCRtpEncodingParameters> Get(int index) override;
+  virtual int Size() override;
+  virtual void Remove(int index) override;
+  virtual void Clean() override;
+
+  std::vector<scoped_refptr<RTCRtpEncodingParameters>> list();
+ private:
+  std::vector<scoped_refptr<RTCRtpEncodingParameters>> _list;
+};
+
+class RTCHeaderExtensionsImpl : public RTCHeaderExtensions {
+ public:
+  virtual void Add(scoped_refptr<RTCRtpExtension> value) override;
+  virtual scoped_refptr<RTCRtpExtension> Get(int index) override;
+  virtual int Size() override;
+  virtual void Remove(int index) override;
+  virtual void Clean() override;
+
+  std::vector<scoped_refptr<RTCRtpExtension>> list();
+
+ private:
+  std::vector<scoped_refptr<RTCRtpExtension>> _list;
+};
+
+
+class RTCCodecsImpl : public RTCCodecs {
+ public:
+  virtual void Add(scoped_refptr<RTCRtpCodecParameters> value) override;
+  virtual scoped_refptr<RTCRtpCodecParameters> Get(int index) override;
+  virtual int Size() override;
+  virtual void Remove(int index) override;
+  virtual void Clean() override;
+
+  std::vector<scoped_refptr<RTCRtpCodecParameters>> list();
+
+ private:
+  std::vector<scoped_refptr<RTCRtpCodecParameters>> _list;
+};
+
 class RTCRtcpFeedbackImpl : public RTCRtcpFeedback {
  public:
   RTCRtcpFeedbackImpl(webrtc::RtcpFeedback rtcp_feedback);
@@ -41,11 +112,11 @@ class RTCRtpCodecParametersImpl : public RTCRtpCodecParameters {
   virtual void set_max_ptime(int value) override;
   virtual int ptime() override;
   virtual void set_ptime(int value) override;
-  virtual const vector<scoped_refptr<RTCRtcpFeedback>> rtcp_feedback() override;
+  virtual const scoped_refptr<RTCRtcpFeedbacks> rtcp_feedback() override;
   virtual void set_rtcp_feedback(
-      vector<scoped_refptr<RTCRtcpFeedback>> rtcp_feedbacks) override;
-  virtual const vector<std::pair<string, string>> parameters() override;
-  virtual void set_parameters(map<string, string> parameters) override;
+      scoped_refptr<RTCRtcpFeedbacks> rtcp_feedbacks) override;
+  virtual const scoped_refptr<RTCParameters> parameters() override;
+  virtual void set_parameters(scoped_refptr<RTCParameters> parameters) override;
   virtual bool operator==(scoped_refptr<RTCRtpCodecParameters> o) override;
   virtual bool operator!=(scoped_refptr<RTCRtpCodecParameters> o) override;
 
@@ -102,17 +173,16 @@ class RTCRtpParametersImpl : public RTCRtpParameters {
   virtual void set_transaction_id(const string id) override;
   virtual const string mid() override;
   virtual void set_mid(const string mid) override;
-  virtual const vector<scoped_refptr<RTCRtpCodecParameters>> codecs() override;
-  virtual void set_codecs(
-      const vector<scoped_refptr<RTCRtpCodecParameters>> codecs) override;
-  virtual const vector<scoped_refptr<RTCRtpExtension>> header_extensions()
+  virtual const scoped_refptr<RTCCodecs> codecs() override;
+  virtual void set_codecs(const scoped_refptr<RTCCodecs> codecs) override;
+  virtual const scoped_refptr<RTCHeaderExtensions> header_extensions()
       override;
   virtual void set_header_extensions(
-      const vector<scoped_refptr<RTCRtpExtension>> header_extensions) override;
-  virtual const vector<scoped_refptr<RTCRtpEncodingParameters>> encodings()
+      const scoped_refptr<RTCHeaderExtensions> header_extensions) override;
+  virtual const scoped_refptr<RTCEncodings> encodings()
       override;
   virtual void set_encodings(
-      const vector<scoped_refptr<RTCRtpEncodingParameters>> encodings) override;
+      const scoped_refptr<RTCEncodings> encodings) override;
 
   virtual scoped_refptr<RTCRtcpParameters> rtcp_parameters() override;
   virtual void set_rtcp_parameters(

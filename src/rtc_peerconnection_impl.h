@@ -19,6 +19,7 @@
 #include "rtc_video_source.h"
 #include "rtc_video_source_impl.h"
 #include "rtc_video_track_impl.h"
+#include "rtc_media_stream_impl.h"
 #include "src/internal/video_capturer.h"
 
 namespace webrtc {
@@ -82,27 +83,27 @@ class RTCPeerConnectionImpl : public RTCPeerConnection,
 
   virtual scoped_refptr<RTCRtpSender> AddTrack(
       scoped_refptr<RTCMediaTrack> track,
-      vector<string> streamIds) override;
+      scoped_refptr<RTCStreamIds> streamIds) override;
 
   virtual bool RemoveTrack(scoped_refptr<RTCRtpSender> render) override;
 
-  virtual vector<scoped_refptr<RTCRtpSender>> senders() override;
+  virtual scoped_refptr<RTCRtpSenders> senders() override;
 
-  virtual vector<scoped_refptr<RTCRtpTransceiver>> transceivers() override;
+  virtual scoped_refptr<RTCRtpTransceivers> transceivers() override;
 
-  virtual vector<scoped_refptr<RTCRtpReceiver>> receivers() override;
+  virtual scoped_refptr<RTCRtpReceivers> receivers() override;
 
  public:
   virtual int AddStream(scoped_refptr<RTCMediaStream> stream) override;
 
   virtual int RemoveStream(scoped_refptr<RTCMediaStream> stream) override;
 
-  virtual vector<scoped_refptr<RTCMediaStream>> local_streams() override {
-    return local_streams_;
+  virtual scoped_refptr<RTCMediaStreams> local_streams() override {
+    return new RefCountedObject<RTCMediaStreamsImpl>(local_streams_);
   }
 
-  virtual vector<scoped_refptr<RTCMediaStream>> remote_streams() override {
-    return remote_streams_;
+  virtual scoped_refptr<RTCMediaStreams> remote_streams() override {
+    return new RefCountedObject<RTCMediaStreamsImpl>(remote_streams_);
   }
 
   virtual scoped_refptr<RTCDataChannel> CreateDataChannel(

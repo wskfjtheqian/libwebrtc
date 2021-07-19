@@ -48,6 +48,8 @@ class RTCVideoDeviceImpl : public RTCVideoDevice {
   rtc::Thread* signaling_thread_ = nullptr;
 };
 
+
+
 }  // namespace libwebrtc
 
 #endif  // LIB_WEBRTC_VIDEO_DEVICE_IMPL_HXX

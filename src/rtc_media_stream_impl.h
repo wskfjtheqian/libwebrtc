@@ -52,11 +52,11 @@ class MediaStreamImpl : public RTCMediaStream,
 
   virtual bool RemoveTrack(scoped_refptr<RTCVideoTrack> track) override;
 
-  virtual vector<scoped_refptr<RTCAudioTrack>> audio_tracks() override;
+  virtual scoped_refptr<RTCAudioTracks> audio_tracks() override;
 
-  virtual vector<scoped_refptr<RTCVideoTrack>> video_tracks() override;
+  virtual scoped_refptr<RTCVideoTracks> video_tracks() override;
 
-  virtual vector<scoped_refptr<RTCMediaTrack>> tracks() override;
+  virtual scoped_refptr<RTCMediaTracks> tracks() override;
 
   virtual scoped_refptr<RTCAudioTrack> FindAudioTrack(
       const string track_id) override;
@@ -82,11 +82,44 @@ class MediaStreamImpl : public RTCMediaStream,
  private:
   rtc::scoped_refptr<webrtc::MediaStreamInterface> rtc_media_stream_;
   rtc::scoped_refptr<webrtc::PeerConnectionInterface> rtc_peerconnection_;
-  vector<scoped_refptr<RTCAudioTrack>> audio_tracks_;
-  vector<scoped_refptr<RTCVideoTrack>> video_tracks_;
+  std::vector<scoped_refptr<RTCAudioTrack>> audio_tracks_;
+  std::vector<scoped_refptr<RTCVideoTrack>> video_tracks_;
   RTCPeerConnectionObserver* observer_ = nullptr;
   string label_, id_;
 };
+
+class RTCMediaStreamsImpl : public RTCMediaStreams {
+ public:
+  RTCMediaStreamsImpl();
+  RTCMediaStreamsImpl(std::vector<scoped_refptr<RTCMediaStream>> list);
+  virtual void Add(scoped_refptr<RTCMediaStream> value) override;
+  virtual scoped_refptr<RTCMediaStream> Get(int index) override;
+  virtual int Size() override;
+  virtual void Remove(int index) override;
+  virtual void Clean() override;
+
+  std::vector<scoped_refptr<RTCMediaStream>> list();
+
+ private:
+  std::vector<scoped_refptr<RTCMediaStream>> _list;
+};
+
+class RTCStreamIdsImpl : public RTCStreamIds {
+ public:
+  RTCStreamIdsImpl();
+  RTCStreamIdsImpl(std::vector<std::string> list);
+  virtual void Add(string value) override;
+  virtual string Get(int index) override;
+  virtual int Size() override;
+  virtual void Remove(int index) override;
+  virtual void Clean() override;
+
+  std::vector<std::string> list();
+
+ private:
+  std::vector<std::string> _list;
+};
+
 
 }  // namespace libwebrtc
 #endif  //! LIB_WEBRTC_MEDIA_STREAM_IMPL_HXX

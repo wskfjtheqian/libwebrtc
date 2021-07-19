@@ -17,9 +17,10 @@ class RTCRtpSenderImpl : public RTCRtpSender {
   virtual uint32_t ssrc() const override;
   virtual RTCMediaType media_type() const override;
   virtual const string id() const override;
-  virtual const vector<string> stream_ids() const override;
-  virtual void set_stream_ids(const vector<string> stream_ids) const override;
-  virtual const vector<scoped_refptr<RTCRtpEncodingParameters>>
+  virtual scoped_refptr<RTCStreamIds> stream_ids() const override;
+  virtual void set_stream_ids(
+      const scoped_refptr<RTCStreamIds> stream_ids) const override;
+  virtual scoped_refptr<RTCEncodings>
   init_send_encodings() const override;
   virtual scoped_refptr<RTCRtpParameters> parameters() const override;
   virtual bool set_parameters(
@@ -32,6 +33,23 @@ class RTCRtpSenderImpl : public RTCRtpSender {
 
  private:
   rtc::scoped_refptr<webrtc::RtpSenderInterface> rtp_sender_;
+};
+
+
+class RTCRtpSendersImpl : public RTCRtpSenders {
+ public:
+  RTCRtpSendersImpl();
+  RTCRtpSendersImpl(std::vector<scoped_refptr<RTCRtpSender>> list);
+  virtual void Add(scoped_refptr<RTCRtpSender> value) override;
+  virtual scoped_refptr<RTCRtpSender> Get(int index) override;
+  virtual int Size() override;
+  virtual void Remove(int index) override;
+  virtual void Clean() override;
+
+  std::vector<scoped_refptr<RTCRtpSender>> list();
+
+ private:
+  std::vector<scoped_refptr<RTCRtpSender>> _list;
 };
 }  // namespace libwebrtc
 

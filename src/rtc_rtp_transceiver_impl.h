@@ -12,12 +12,12 @@ class RTCRtpTransceiverInitImpl : public RTCRtpTransceiverInit {
 
   virtual RTCRtpTransceiverDirection direction() override;
   virtual void set_direction(RTCRtpTransceiverDirection value) override;
-  virtual const vector<string> stream_ids() override;
-  virtual void set_stream_ids(const vector<string> ids) override;
-  virtual const vector<scoped_refptr<RTCRtpEncodingParameters>> send_encodings()
+  virtual const scoped_refptr<RTCStreamIds> stream_ids() override;
+  virtual void set_stream_ids(const scoped_refptr<RTCStreamIds> ids) override;
+  virtual const scoped_refptr<RTCEncodings> send_encodings()
       override;
   virtual void set_send_encodings(
-      const vector<scoped_refptr<RTCRtpEncodingParameters>> send_encodings)
+      const scoped_refptr<RTCEncodings> send_encodings)
       override;
 
   webrtc::RtpTransceiverInit rtp_transceiver_init() {
@@ -51,6 +51,21 @@ class RTCRtpTransceiverImpl : public RTCRtpTransceiver {
 
  private:
   rtc::scoped_refptr<webrtc::RtpTransceiverInterface> rtp_transceiver_;
+};
+
+class RTCRtpTransceiversImpl : public RTCRtpTransceivers {
+ public:
+  RTCRtpTransceiversImpl(std::vector<scoped_refptr<RTCRtpTransceiver>> list);
+  virtual void Add(scoped_refptr<RTCRtpTransceiver> value) override;
+  virtual scoped_refptr<RTCRtpTransceiver> Get(int index) override;
+  virtual int Size() override;
+  virtual void Remove(int index) override;
+  virtual void Clean() override;
+
+  std::vector<scoped_refptr<RTCRtpTransceiver>> list();
+
+ private:
+  std::vector<scoped_refptr<RTCRtpTransceiver>> _list;
 };
 
 }  // namespace libwebrtc

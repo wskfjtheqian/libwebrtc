@@ -13,7 +13,6 @@
 
 #include "base/fixed_size_function.h"
 #include "base/string.h"
-#include "base/inlined_vector.h"
 #include "base/refcount.h"
 #include "base/scoped_ref_ptr.h"
 
@@ -23,12 +22,6 @@
 namespace libwebrtc {
 
 enum { kMaxIceServerSize = 8 };
-
-template <typename T>
-using vector = bsp::inlined_vector<T, 16, true>;
-
-template <typename Key, typename T>
-using map = std::map<Key, T>;
 
 enum class MediaSecurityType { kSRTP_None = 0, kSDES_SRTP, kDTLS_SRTP };
 

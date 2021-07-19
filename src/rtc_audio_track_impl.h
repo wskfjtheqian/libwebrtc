@@ -44,6 +44,23 @@ class AudioTrackImpl : public RTCAudioTrack {
   string id_, kind_;
 };
 
+class RTCAudioTracksImpl : public RTCAudioTracks {
+ public:
+  RTCAudioTracksImpl();
+  RTCAudioTracksImpl(std::vector<scoped_refptr<RTCAudioTrack>> list);
+
+  virtual void Add(scoped_refptr<RTCAudioTrack> value) override;
+  virtual scoped_refptr<RTCAudioTrack> Get(int index) override;
+  virtual int Size() override;
+  virtual void Remove(int index) override;
+  virtual void Clean() override;
+
+  std::vector<scoped_refptr<RTCAudioTrack>> list();
+
+ private:
+  std::vector<scoped_refptr<RTCAudioTrack>> _list;
+};
+
 }  // namespace libwebrtc
 
 #endif  // LIB_WEBRTC_AUDIO_TRACK_IMPL_HXX

@@ -67,6 +67,7 @@ bool MediaStreamImpl::RemoveTrack(scoped_refptr<RTCAudioTrack> track) {
 bool MediaStreamImpl::RemoveTrack(scoped_refptr<RTCVideoTrack> track) {
   VideoTrackImpl* track_impl = static_cast<VideoTrackImpl*>(track.get());
   if (rtc_media_stream_->RemoveTrack(track_impl->rtc_track())) {
+
     auto it = std::find(video_tracks_.begin(), video_tracks_.end(), track);
     if (it != video_tracks_.end())
       video_tracks_.erase(it);
@@ -75,21 +76,21 @@ bool MediaStreamImpl::RemoveTrack(scoped_refptr<RTCVideoTrack> track) {
   return false;
 }
 
-vector<scoped_refptr<RTCAudioTrack>> MediaStreamImpl::audio_tracks() {
-  return audio_tracks_;
+scoped_refptr<RTCAudioTracks> MediaStreamImpl::audio_tracks() {
+  return new RefCountedObject<RTCAudioTracksImpl>(audio_tracks_);
 }
 
-vector<scoped_refptr<RTCVideoTrack>> MediaStreamImpl::video_tracks() {
-  return video_tracks_;
+scoped_refptr<RTCVideoTracks> MediaStreamImpl::video_tracks() {
+  return new RefCountedObject<RTCVideoTracksImpl>(video_tracks_);
 }
 
-vector<scoped_refptr<RTCMediaTrack>> MediaStreamImpl::tracks() {
-  vector<scoped_refptr<RTCMediaTrack>> tracks;
+scoped_refptr<RTCMediaTracks> MediaStreamImpl::tracks() {
+  scoped_refptr<RTCMediaTracks> tracks = RTCMediaTracks::Create();
   for (auto track : audio_tracks_) {
-    tracks.push_back(track);
+    tracks->Add(track);
   }
   for (auto track : video_tracks_) {
-    tracks.push_back(track);
+    tracks->Add(track);
   }
   return tracks;
 }
@@ -161,5 +162,81 @@ void MediaStreamImpl::OnChanged() {
 
   video_tracks_ = video_tracks;
 }
+
+scoped_refptr<RTCMediaStreams> RTCMediaStreams::Create() {
+  return new  RefCountedObject<RTCMediaStreamsImpl>();
+}
+
+RTCMediaStreamsImpl::RTCMediaStreamsImpl() {}
+
+RTCMediaStreamsImpl::RTCMediaStreamsImpl(
+    std::vector<scoped_refptr<RTCMediaStream>> list):_list(list) {}
+
+void RTCMediaStreamsImpl::Add(scoped_refptr<RTCMediaStream> value) {
+  _list.push_back(value);
+}
+
+scoped_refptr<RTCMediaStream> RTCMediaStreamsImpl::Get(int index) {
+  return _list.at(index);
+}
+
+int RTCMediaStreamsImpl::Size() {
+  return _list.size();
+}
+
+void RTCMediaStreamsImpl::Remove(int index) {
+  auto it = _list.begin() + index;
+  if (it != _list.end()) {
+    _list.erase(it);
+  }
+}
+
+void RTCMediaStreamsImpl::Clean() {
+  _list.clear();
+}
+
+std::vector<scoped_refptr<RTCMediaStream>> RTCMediaStreamsImpl::list() {
+  return _list;
+}
+
+
+scoped_refptr<RTCStreamIds> RTCStreamIds::Create() {
+  return new RefCountedObject<RTCStreamIdsImpl>();
+}
+
+RTCStreamIdsImpl::RTCStreamIdsImpl() {}
+
+RTCStreamIdsImpl::RTCStreamIdsImpl(std::vector<std::string> list)
+    : _list(list) {}
+
+void RTCStreamIdsImpl::Add(string value) {
+  _list.push_back(std::string(value.data(), value.size()));
+}
+
+string RTCStreamIdsImpl::Get(int index) {
+  std::string ret = _list.at(index);
+
+  return string(ret.data(), ret.size());
+}
+
+int RTCStreamIdsImpl::Size() {
+  return _list.size();
+}
+
+void RTCStreamIdsImpl::Remove(int index) {
+  auto it = _list.begin() + index;
+  if (it != _list.end()) {
+    _list.erase(it);
+  }
+}
+
+void RTCStreamIdsImpl::Clean() {
+  _list.clear();
+}
+
+std::vector<std::string> RTCStreamIdsImpl::list() {
+  return _list;
+}
+
 
 }  // namespace libwebrtc

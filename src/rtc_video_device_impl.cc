@@ -45,4 +45,5 @@ scoped_refptr<RTCVideoCapturer> RTCVideoDeviceImpl::Create(const char* name,
       });
 }
 
+
 }  // namespace libwebrtc

@@ -13,8 +13,8 @@ class RTCRtpReceiverImpl : public RTCRtpReceiver,
 
   virtual scoped_refptr<RTCMediaTrack> track() const override;
   virtual scoped_refptr<RTCDtlsTransport> dtls_transport() const override;
-  virtual const vector<string> stream_ids() const override;
-  virtual vector<scoped_refptr<RTCMediaStream>> streams() const override;
+  virtual scoped_refptr<RTCStreamIds> stream_ids() const override;
+  virtual scoped_refptr<RTCMediaStreams> streams() const override;
   virtual RTCMediaType media_type() const override;
   virtual const string id() const override;
   virtual scoped_refptr<RTCRtpParameters> parameters() const override;
@@ -31,6 +31,22 @@ class RTCRtpReceiverImpl : public RTCRtpReceiver,
   virtual void OnFirstPacketReceived(cricket::MediaType media_type) override;
 
 };  // namespace libwebrtc
+
+class RTCRtpReceiversImpl : public RTCRtpReceivers {
+ public:
+  RTCRtpReceiversImpl();
+  RTCRtpReceiversImpl(std::vector<scoped_refptr<RTCRtpReceiver>> list);
+  virtual void Add(scoped_refptr<RTCRtpReceiver> value) override;
+  virtual scoped_refptr<RTCRtpReceiver> Get(int index) override;
+  virtual int Size() override;
+  virtual void Remove(int index) override;
+  virtual void Clean() override;
+
+  std::vector<scoped_refptr<RTCRtpReceiver>> list();
+
+ private:
+  std::vector<scoped_refptr<RTCRtpReceiver>> _list;
+};
 
 }  // namespace libwebrtc
 
