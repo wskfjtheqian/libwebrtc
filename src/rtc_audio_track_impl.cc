@@ -14,7 +14,7 @@ AudioTrackImpl::~AudioTrackImpl() {
   RTC_LOG(INFO) << __FUNCTION__ << ": dtor ";
 }
 
-scoped_refptr<RTCAudioTracks> RTCAudioTracks::Create() {
+LIB_WEBRTC_API scoped_refptr<RTCAudioTracks> RTCAudioTracks::Create() {
   return new RefCountedObject<RTCAudioTracksImpl>();
 }
 

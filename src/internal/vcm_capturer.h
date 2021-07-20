@@ -13,6 +13,7 @@
 #include <memory>
 #include <vector>
 
+#include "rtc_types.h"
 #include "api/scoped_refptr.h"
 #include "modules/video_capture/video_capture.h"
 #include "src/internal/video_capturer.h"
@@ -45,7 +46,7 @@ class VcmCapturer : public VideoCapturer,
 
 class CapturerTrackSource : public webrtc::VideoTrackSource {
  public:
-  static rtc::scoped_refptr<CapturerTrackSource> Create();
+  LIB_WEBRTC_API static rtc::scoped_refptr<CapturerTrackSource> Create();
 
  public:
   explicit CapturerTrackSource(std::unique_ptr<VideoCapturer> capturer)

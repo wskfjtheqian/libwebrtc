@@ -93,7 +93,7 @@ void VcmCapturer::OnFrame(const VideoFrame& frame) {
   VideoCapturer::OnFrame(frame);
 }
 
-rtc::scoped_refptr<CapturerTrackSource> CapturerTrackSource::Create() {
+LIB_WEBRTC_API rtc::scoped_refptr<CapturerTrackSource> CapturerTrackSource::Create() {
   const size_t kWidth = 640;
   const size_t kHeight = 480;
   const size_t kFps = 30;

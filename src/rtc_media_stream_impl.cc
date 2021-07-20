@@ -84,7 +84,7 @@ scoped_refptr<RTCVideoTracks> MediaStreamImpl::video_tracks() {
   return new RefCountedObject<RTCVideoTracksImpl>(video_tracks_);
 }
 
-scoped_refptr<RTCMediaTracks> MediaStreamImpl::tracks() {
+ scoped_refptr<RTCMediaTracks> MediaStreamImpl::tracks() {
   scoped_refptr<RTCMediaTracks> tracks = RTCMediaTracks::Create();
   for (auto track : audio_tracks_) {
     tracks->Add(track);
@@ -163,7 +163,7 @@ void MediaStreamImpl::OnChanged() {
   video_tracks_ = video_tracks;
 }
 
-scoped_refptr<RTCMediaStreams> RTCMediaStreams::Create() {
+LIB_WEBRTC_API scoped_refptr<RTCMediaStreams> RTCMediaStreams::Create() {
   return new  RefCountedObject<RTCMediaStreamsImpl>();
 }
 
@@ -200,7 +200,7 @@ std::vector<scoped_refptr<RTCMediaStream>> RTCMediaStreamsImpl::list() {
 }
 
 
-scoped_refptr<RTCStreamIds> RTCStreamIds::Create() {
+LIB_WEBRTC_API scoped_refptr<RTCStreamIds> RTCStreamIds::Create() {
   return new RefCountedObject<RTCStreamIdsImpl>();
 }
 

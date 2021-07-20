@@ -30,7 +30,7 @@ void VideoTrackImpl::RemoveRenderer(
 
 
 
-scoped_refptr<RTCVideoTracks> RTCVideoTracks::Create() {
+LIB_WEBRTC_API scoped_refptr<RTCVideoTracks> RTCVideoTracks::Create() {
   return new RefCountedObject<RTCVideoTracksImpl>();
 }
 

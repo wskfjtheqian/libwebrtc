@@ -39,7 +39,7 @@ class RTCMediaStream : public RefCountInterface {
 
 class RTCMediaStreams : public RefCountInterface {
  public:
-  static scoped_refptr<RTCMediaStreams> Create();
+  LIB_WEBRTC_API  static scoped_refptr<RTCMediaStreams> Create();
   virtual void Add(scoped_refptr<RTCMediaStream> value) = 0;
   virtual scoped_refptr<RTCMediaStream> Get(int index) = 0;
   virtual int Size() = 0;
@@ -49,7 +49,7 @@ class RTCMediaStreams : public RefCountInterface {
 
 class RTCStreamIds : public RefCountInterface {
  public:
-  static scoped_refptr<RTCStreamIds> Create();
+  LIB_WEBRTC_API static scoped_refptr<RTCStreamIds> Create();
   virtual void Add(string value) = 0;
   virtual string Get(int index) = 0;
   virtual int Size() = 0;

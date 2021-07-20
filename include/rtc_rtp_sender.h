@@ -6,7 +6,7 @@
 
 #include "rtc_rtp_parameters.h"
 #include "rtc_types.h"
-#include "include/rtc_media_stream.h"
+#include "rtc_media_stream.h"
 
 namespace libwebrtc {
 

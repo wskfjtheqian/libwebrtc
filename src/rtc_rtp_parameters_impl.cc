@@ -468,7 +468,7 @@ bool RTCRtcpFeedbackImpl::operator!=(scoped_refptr<RTCRtcpFeedback> o) {
          static_cast<RTCRtcpFeedbackImpl*>(o.get())->rtcp_feedback();
 }
 
- scoped_refptr<RTCEncodings> RTCEncodings::Create() {
+ LIB_WEBRTC_API scoped_refptr<RTCEncodings> RTCEncodings::Create() {
   return new RefCountedObject<RTCEncodingsImpl>();
  }
 
@@ -500,7 +500,7 @@ std::vector<scoped_refptr<RTCRtpEncodingParameters>> RTCEncodingsImpl::list() {
 }
 
 
-scoped_refptr<RTCHeaderExtensions> RTCHeaderExtensions::Create() {
+LIB_WEBRTC_API scoped_refptr<RTCHeaderExtensions> RTCHeaderExtensions::Create() {
   return new RefCountedObject<RTCHeaderExtensionsImpl>();
 }
 
@@ -531,7 +531,7 @@ std::vector<scoped_refptr<RTCRtpExtension>> RTCHeaderExtensionsImpl::list() {
   return _list;
 }
 
-scoped_refptr<RTCCodecs> RTCCodecs::Create() {
+LIB_WEBRTC_API scoped_refptr<RTCCodecs> RTCCodecs::Create() {
   return new RefCountedObject<RTCCodecsImpl>();
 }
 
@@ -600,7 +600,7 @@ std::map<std::string, std::string> RTCParametersImpl::map() {
 }
 
 
-scoped_refptr<RTCRtcpFeedbacks> RTCRtcpFeedbacks::Create() {
+LIB_WEBRTC_API scoped_refptr<RTCRtcpFeedbacks> RTCRtcpFeedbacks::Create() {
   return new RefCountedObject<RTCRtcpFeedbacksImpl>();
 }
 

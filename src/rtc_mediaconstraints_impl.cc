@@ -2,7 +2,7 @@
 
 namespace libwebrtc {
 
-scoped_refptr<RTCMediaConstraints> RTCMediaConstraints::Create() {
+LIB_WEBRTC_API scoped_refptr<RTCMediaConstraints> RTCMediaConstraints::Create() {
   scoped_refptr<RTCMediaConstraintsImpl> constraints =
       scoped_refptr<RTCMediaConstraintsImpl>(
           new RefCountedObject<RTCMediaConstraintsImpl>());

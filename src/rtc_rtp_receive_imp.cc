@@ -88,7 +88,7 @@ void RTCRtpReceiverImpl::SetJitterBufferMinimumDelay(double delay_seconds) {
   rtp_receiver_->SetJitterBufferMinimumDelay(delay_seconds);
 }
 
-scoped_refptr<RTCRtpReceivers> RTCRtpReceivers::Create() {
+LIB_WEBRTC_API scoped_refptr<RTCRtpReceivers> RTCRtpReceivers::Create() {
   return new RefCountedObject<RTCRtpReceiversImpl>();
 }
 

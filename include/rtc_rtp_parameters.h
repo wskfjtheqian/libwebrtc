@@ -169,7 +169,7 @@ class RTCRtpRtxParameters : public RefCountInterface {
 
 class RTCRtcpFeedbacks : public RefCountInterface {
  public:
-  static scoped_refptr<RTCRtcpFeedbacks> Create();
+  LIB_WEBRTC_API static scoped_refptr<RTCRtcpFeedbacks> Create();
   virtual void Add(scoped_refptr<RTCRtcpFeedback> value) = 0;
   virtual scoped_refptr<RTCRtcpFeedback> Get(int index) = 0;
   virtual int Size() = 0;
@@ -318,7 +318,7 @@ class RTCRtpEncodingParameters : public RefCountInterface {
 
 class RTCCodecs : public RefCountInterface {
  public:
-  static scoped_refptr<RTCCodecs> Create();
+  LIB_WEBRTC_API static scoped_refptr<RTCCodecs> Create();
   virtual void Add(scoped_refptr<RTCRtpCodecParameters> value) = 0;
   virtual scoped_refptr<RTCRtpCodecParameters> Get(int index) = 0;
   virtual int Size() = 0;
@@ -328,7 +328,7 @@ class RTCCodecs : public RefCountInterface {
 
 class RTCHeaderExtensions : public RefCountInterface {
  public:
-  static scoped_refptr<RTCHeaderExtensions> Create();
+  LIB_WEBRTC_API static scoped_refptr<RTCHeaderExtensions> Create();
   virtual void Add(scoped_refptr<RTCRtpExtension> value) = 0;
   virtual scoped_refptr<RTCRtpExtension> Get(int index) = 0;
   virtual int Size() = 0;
@@ -338,7 +338,7 @@ class RTCHeaderExtensions : public RefCountInterface {
 
 class RTCEncodings : public RefCountInterface {
  public:
-  static scoped_refptr<RTCEncodings> Create();
+  LIB_WEBRTC_API static scoped_refptr<RTCEncodings> Create();
   virtual void Add(scoped_refptr<RTCRtpEncodingParameters> value) = 0;
   virtual scoped_refptr<RTCRtpEncodingParameters> Get(int index) = 0;
   virtual int Size() = 0;

@@ -3,7 +3,7 @@
 
 namespace libwebrtc {
 
-scoped_refptr<RTCMediaTracks> RTCMediaTracks::Create() {
+LIB_WEBRTC_API scoped_refptr<RTCMediaTracks> RTCMediaTracks::Create() {
   return new RefCountedObject<RTCMediaTracksImpl>();
 }
 

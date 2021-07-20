@@ -24,7 +24,7 @@ class RTCVideoTrack : public RTCMediaTrack {
 
 class RTCVideoTracks : public RefCountInterface {
  public:
-  static scoped_refptr<RTCVideoTracks> Create();
+  LIB_WEBRTC_API static scoped_refptr<RTCVideoTracks> Create();
   virtual void Add(scoped_refptr<RTCVideoTrack> value) = 0;
   virtual scoped_refptr<RTCVideoTrack> Get(int index) = 0;
   virtual int Size() = 0;

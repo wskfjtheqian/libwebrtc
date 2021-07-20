@@ -12,7 +12,7 @@ class RTCAudioTrack : public RTCMediaTrack {
 
 class RTCAudioTracks : public RefCountInterface {
  public:
-  static scoped_refptr<RTCAudioTracks> Create();
+  LIB_WEBRTC_API static scoped_refptr<RTCAudioTracks> Create();
   virtual void Add(scoped_refptr<RTCAudioTrack> value) = 0;
   virtual scoped_refptr<RTCAudioTrack> Get(int index) = 0;
   virtual int Size() = 0;

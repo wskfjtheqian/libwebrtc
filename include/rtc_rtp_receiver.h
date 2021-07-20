@@ -60,7 +60,7 @@ class RTCRtpReceiver : public RefCountInterface {
 
 class RTCRtpReceivers : public RefCountInterface {
  public:
-  static scoped_refptr<RTCRtpReceivers> Create();
+  LIB_WEBRTC_API static scoped_refptr<RTCRtpReceivers> Create();
   virtual void Add(scoped_refptr<RTCRtpReceiver> value) = 0;
   virtual scoped_refptr<RTCRtpReceiver> Get(int index) = 0;
   virtual int Size() = 0;
